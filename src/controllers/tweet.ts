@@ -2,6 +2,7 @@ import { Response } from "express";
 import { ExtendedRequest } from "../types/extended-request";
 import { addTweetSchema } from "../schemas/add-tweet";
 import { createTweet, findTweet } from "../services/tweet";
+import { addHashtag } from "../services/trend";
 
 export const addTweet = async (req: ExtendedRequest, res: Response) => {
     const safeData = addTweetSchema.safeParse(req.body);
@@ -22,5 +23,21 @@ export const addTweet = async (req: ExtendedRequest, res: Response) => {
 
     res.json({ tweet: newTweet });
 
-    //Adicionar a hashtag ao trend
+    const hashtags = safeData.data.body.match(/#[a-zA-Z0-9]+/g);
+    if(hashtags) {
+        for(let hashtag of hashtags) {
+            if(hashtag.length >= 2){
+                await addHashtag(hashtag);
+            }
+        }
+    }
+}
+
+export const getTweet = async (req: ExtendedRequest, res: Response) => {
+    const { id } = req.params;
+    
+    const tweet = await findTweet(parseInt(id));
+    if(!tweet) return res.status(404).json({error: 'Tweet não encontrado'});
+    
+    res.json(tweet);
 }
