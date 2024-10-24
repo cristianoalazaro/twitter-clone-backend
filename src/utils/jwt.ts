@@ -9,7 +9,10 @@ export const createJWT = (slug: string) => {
 
 export const verifyJWT = (req: ExtendedRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'] as string;
-    if(!authHeader) return res.status(401).json({error: 'Acesso negado'});
+    if(!authHeader) {
+        res.status(401).json({error: 'Acesso negado'});
+        return;
+    } 
 
     const token = authHeader.split(' ')[1];
 
@@ -17,13 +20,18 @@ export const verifyJWT = (req: ExtendedRequest, res: Response, next: NextFunctio
         token, 
         process.env.JWT_SECRET as string, 
         async(error, decoded: any) => {
-            if(error) return res.status(401).json({error: 'Acesso negado'});
+            if(error) {
+                res.status(401).json({error: 'Acesso negado'});
+                return;
+            } 
             
             const user = await findUserBySlug(decoded.slug);
-            if(!user) return res.status(401).json({error: 'Acesso negado'});
+            if(!user) {
+                res.status(401).json({error: 'Acesso negado'});
+                return;
+            } 
 
-            req.userSlug = user?.slug;
-            
+            req.userSlug = user?.slug;            
             next();
         })
 }

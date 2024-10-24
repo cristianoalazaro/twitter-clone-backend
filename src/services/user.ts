@@ -51,3 +51,30 @@ export const createUser = async (data: Prisma.UserCreateInput) => {
         cover: getPublicUrl(newUser.cover),
     }
 }
+
+export const getUserFollowingCount = async(slug: string) => {
+    const count = await prisma.follow.count({
+        where: {
+            user1Slug: slug,
+        }
+    });
+    return count;
+}
+
+export const getUserFollowersCount = async(slug: string) => {
+    const count = await prisma.follow.count({
+        where: {
+            user2Slug: slug,
+        }
+    });
+    return count;
+}
+
+export const getUserTweetsCount = async(slug: string) => {
+    const count = await prisma.tweet.count({
+        where: {
+            userSlug: slug,
+        }
+    });
+    return count;
+}

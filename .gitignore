@@ -1,4 +1,53 @@
+# Node.js
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
+# Environment variables
 .env
+.env.*.local
+
+#Docker
 docker-compose.yml
+data/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Prisma
+prisma/.env
+prisma/migrations/
+prisma/dev.db
+prisma/*shadow*
+prisma/*.db
+
+# TypeScript
+dist/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Postgres
+*.pid
+pgdata/
+postgres-data/
+postgres_logs/

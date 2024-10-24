@@ -10,12 +10,14 @@ export const signup = async (req: Request, res: Response) => {
     //Validar os dados
     const safeData = signupSchema.safeParse(req.body);
     if(!safeData.success){
-        return res.json({ error: safeData.error.flatten().fieldErrors })
+        res.json({ error: safeData.error.flatten().fieldErrors });
+        return;
     }
 
     //Verificar email
     if(await findUserByEmail(safeData.data.email)){
-        return res.json({error: 'E-mail já existe'});
+        res.json({error: 'E-mail já existe'});
+        return;
     }
 
     //Verificar slug
@@ -59,14 +61,21 @@ export const signup = async (req: Request, res: Response) => {
 export const signIn = async (req: Request, res: Response) => {
     const safeData = signinSchema.safeParse(req.body);
     if(!safeData.success){
-        return res.json({ error: safeData.error.flatten().fieldErrors })
+        res.json({ error: safeData.error.flatten().fieldErrors });
+        return;
     }
 
     const user = await findUserByEmail(safeData.data.email);
-    if(!user) return res.status(401).json({error: 'Acesso negado'});
+    if(!user) {
+        res.status(401).json({error: 'Acesso negado'});
+        return;
+    }
     
     const verifyPass = compare(safeData.data.password, user.password);
-    if(!verifyPass) return res.status(401).json({error: 'Acesso negado'});
+    if(!verifyPass) {
+        res.status(401).json({error: 'Acesso negado'});
+        return;
+    } 
 
     const token = createJWT(user.slug);
 
