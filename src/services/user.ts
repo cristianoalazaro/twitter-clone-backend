@@ -78,3 +78,22 @@ export const getUserTweetsCount = async(slug: string) => {
     });
     return count;
 }
+
+export const findUserTweets = async (userSlug: string, page: number, perPage: number) => {
+    const tweets = await prisma.tweet.findMany({
+        where: {
+            userSlug,
+        },
+        include: {
+            likes: {
+                select: {
+                    userSlug: true,
+                }
+            }
+        },
+        take: perPage,
+        skip: (page - 1) * perPage,
+    });
+
+    return tweets;
+}
