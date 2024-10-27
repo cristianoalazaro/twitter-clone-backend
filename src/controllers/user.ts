@@ -1,7 +1,8 @@
 import { Response } from "express";
 import { ExtendedRequest } from "../types/extended-request";
-import { findUserBySlug, findUserTweets, getUserFollowersCount, getUserFollowingCount, getUserTweetsCount } from "../services/user";
+import { checkIfFollows, findUserBySlug, findUserTweets, follow, getUserFollowersCount, getUserFollowingCount, getUserTweetsCount, unfollow, updateUserInfo } from "../services/user";
 import { userTweetsSchema } from "../schemas/user-tweets";
+import { UpdateUserSchema } from "../schemas/update-user";
 
 export const getUser = async (req: ExtendedRequest, res: Response) => {
     const { slug } = req.params;
@@ -23,6 +24,7 @@ export const getUser = async (req: ExtendedRequest, res: Response) => {
 export const getUserTweets = async (req: ExtendedRequest, res: Response) => {
     const { slug } = req.params;
     const safeData = userTweetsSchema.safeParse(req.query);
+
     if(!safeData.success){
         res.json({ error: safeData.error.flatten().fieldErrors });
         return;
@@ -33,4 +35,42 @@ export const getUserTweets = async (req: ExtendedRequest, res: Response) => {
     const tweets = await findUserTweets(slug, currentPage, perPage);
 
     res.json({ tweets, page: currentPage, });
+}
+
+export const followToggle = async (req: ExtendedRequest, res: Response) => {
+    const { slug } = req.params;
+    const me = req.userSlug as string;
+
+    if (slug === me) {
+        res.status(400).json({ error: 'Usuário não pode seguir ele mesmo!' });
+        return;
+    }
+
+    const hasUserToBeFollwed = await findUserBySlug(slug);
+    if(!hasUserToBeFollwed) {
+        res.json({ error: 'Usuário não existe!' });
+        return;
+    }
+
+    const follows = await checkIfFollows(me, slug);
+    
+    if (!follows) {
+        await follow(me, slug);
+        res.json({ following: true })
+    } else {
+        await unfollow(me, slug);
+        res.json({ following: false })
+    }
+}
+
+export const updateUser = async(req: ExtendedRequest, res: Response) => {
+    const safeData = UpdateUserSchema.safeParse(req.body);
+
+    if(!safeData.success) {
+        res.json({ error: safeData.error.flatten().fieldErrors });
+        return;
+    }
+
+    await updateUserInfo(req.userSlug as string, safeData.data);
+    res.json({});
 }
