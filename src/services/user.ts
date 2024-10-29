@@ -132,3 +132,50 @@ export const updateUserInfo = async (slug: string, data: Prisma.UserUpdateInput)
         data,
     })
 }
+
+export const getUsersFollowing = async(slug: string) => {
+    const following = [];
+
+    const reqFollow = await prisma.follow.findMany({
+        select: { user2Slug: true },
+        where: { user1Slug: slug }
+    });
+
+    for (const reqItem of reqFollow){
+        following.push(reqItem.user2Slug);
+    }
+
+    return following;
+}
+
+export const findTweetsFeed = async (following: string[], currentPage: number, perPage: number) => {
+    const tweets = await prisma.tweet.findMany({
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    avatar: true,
+                    slug: true,
+                }
+            },
+            likes: {
+                select: {
+                    userSlug: true,
+                }
+            }
+        },
+        where: {
+            userSlug: { in: following },
+            answerOf: 0,
+        },
+        orderBy:{ createdAt: 'desc' },
+        skip: (currentPage - 1) * perPage,
+        take: perPage
+    });
+
+    for (const tweetIndex in tweets ){
+        tweets[tweetIndex].user.avatar = getPublicUrl(tweets[tweetIndex].user.avatar);
+    }
+
+    return tweets;
+}
