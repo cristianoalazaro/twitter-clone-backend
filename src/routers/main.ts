@@ -5,6 +5,8 @@ import * as tweetController from '../controllers/tweet';
 import * as userController from '../controllers/user';
 import { verifyJWT } from "../utils/jwt";
 import { getFeed } from "../controllers/feed";
+import { searchTweets } from "../controllers/searchTweets";
+import { getTrends } from "../controllers/trend";
 export const mainRouter = Router();
 
 mainRouter.get('/ping', pingController.ping);
@@ -25,6 +27,6 @@ mainRouter.put('/user', verifyJWT, userController.updateUser);
 //mainRouter.put('/user/cover');
 
 mainRouter.get('/feed', verifyJWT, getFeed);
-//mainRouter.get('/search');
-//mainRouter.get('/trending');
+mainRouter.get('/search', verifyJWT, searchTweets);
+mainRouter.get('/trending', verifyJWT, getTrends);
 //mainRouter.get('/suggestions');

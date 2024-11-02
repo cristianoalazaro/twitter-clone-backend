@@ -86,3 +86,38 @@ export const likeTweet = async(userSlug: string, tweetId: number) => {
         }
     });
 }
+
+export const findTweetsByBody = async(bodyContains: string, perPage: number, currentPage: number) => {
+    const tweets = await prisma.tweet.findMany({
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    avatar: true,
+                    slug: true,
+                }
+            },
+            likes: {
+                select: {
+                    userSlug: true
+                }
+            }
+        },
+        where: {
+            body: {
+                contains: bodyContains,
+                mode: 'insensitive',
+            },
+            answerOf: 0,
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (currentPage - 1) * perPage,
+        take: perPage,
+    });
+
+    for (const tweetIndex in tweets) {
+        tweets[tweetIndex].user.avatar = getPublicUrl(tweets[tweetIndex].user.avatar);
+    }
+
+    return tweets;
+}
