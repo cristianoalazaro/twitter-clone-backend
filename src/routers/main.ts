@@ -7,6 +7,7 @@ import { verifyJWT } from "../utils/jwt";
 import { getFeed } from "../controllers/feed";
 import { searchTweets } from "../controllers/searchTweets";
 import { getTrends } from "../controllers/trend";
+import { getSuggestions } from "../controllers/suggestion";
 export const mainRouter = Router();
 
 mainRouter.get('/ping', pingController.ping);
@@ -29,4 +30,4 @@ mainRouter.put('/user', verifyJWT, userController.updateUser);
 mainRouter.get('/feed', verifyJWT, getFeed);
 mainRouter.get('/search', verifyJWT, searchTweets);
 mainRouter.get('/trending', verifyJWT, getTrends);
-//mainRouter.get('/suggestions');
+mainRouter.get('/suggestions', verifyJWT, getSuggestions);
