@@ -23,6 +23,7 @@ export const signup = async (req: Request, res: Response) => {
     //Verificar slug
     let genSlug = true;
     let userSlug = slug(safeData.data.name);
+    
     while(genSlug) {
         const hasSlug = await findUserBySlug(userSlug);
         if(hasSlug) {
